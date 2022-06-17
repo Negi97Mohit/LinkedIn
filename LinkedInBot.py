@@ -32,8 +32,8 @@ class LinkedIn:
         print(self.driver.title)
 
         #my login credentials
-        username="mohit.snegi97@gmail.com"
-        password="Hollyhalston97)"
+        username=#email
+        password=#password
 
         #logining In
         self.driver.find_element_by_id("username").send_keys(username)
@@ -53,8 +53,8 @@ class LinkedIn:
 
         self.find_msgbox()
 
-        # #this function will send the message to individual profiles
-        # self.send_message(profile_names)
+        #this function will send the message to individual profiles
+        self.send_message(profile_names)
         
 
     #Function to find the people profile link on the current website    
