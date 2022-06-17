@@ -8,10 +8,15 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.edge.service import Service
 from selenium.webdriver.edge.options import Options
+from selenium.webdriver.common.action_chains import ActionChains
 from bs4 import BeautifulSoup
 
+
+#Main Bot class
 class LinkedIn:
-    profiles=[]
+    profiles=[]     #Saving the profiles
+    
+    #constructor
     def __init__(self,link):
         self.link=link
         service=Service()
@@ -19,34 +24,64 @@ class LinkedIn:
         driver.get(self.link)     #connecting to the LinkedIn login page
 
     #This function will login using my credentials into my linkedIn account
-    
     def login(self):
         service=Service()
         self.driver = webdriver.Edge(service=service)   #connecting to me Edge browse
         self.driver.get(self.link)     #connecting to the LinkedIn login page
         print(self.link)
         print(self.driver.title)
+
+        #my login credentials
         username="mohit.snegi97@gmail.com"
         password="Hollyhalston97)"
+
+        #logining In
         self.driver.find_element_by_id("username").send_keys(username)
         self.driver.find_element_by_id("password").send_keys(password)
         self.driver.find_element_by_class_name("login__form_action_container ").click()
-        self.driver.get("https://www.linkedin.com/company/cengage-learning/people/?keywords=Talent%20Acquisition%20Partner%2Cboston")
+                
+        #redirecting to Cengage website
+        self.driver.get("https://www.linkedin.com/company/insulet-corporation/people/?facetCurrentFunction=12&facetGeoRegion=us%3A7&facetSkillExplicit=993%2C49")
         time.sleep(15)
         get_title=self.driver.title
         
+        #calling funtion to find the people profile line on the cengage website 
         profile= self.find_people(BeautifulSoup(self.driver.page_source),self.profiles)
         profile_names=list(set(profile))
-        self.send_message(profile_names)
+        print(len(profile_names))
+        print(profile_names)
+
+        self.find_msgbox()
+
+        # #this function will send the message to individual profiles
+        # self.send_message(profile_names)
         
+
+    #Function to find the people profile link on the current website    
     def find_people(self,soup,profiles):
-        id=[]
         souper=soup.find('div',class_='scaffold-finite-scroll__content')
         links=souper.findAll('a',class_='ember-view') 
         for link in links:
-            profiles.append(link.get('href'))
+            profiles.append(link.get('href'))  #appending the profile link to profiles array
 
         return profiles
+
+    def find_msgbox(self):
+        button1=self.driver.find_element_by_class_name("scaffold-finite-scroll__content")
+        button=button1.find_elements_by_class_name("artdeco-button__text")
+        for l in button:
+            l.click()
+            time.sleep(10)
+            # self.driver.find_element_by_xpath('//div[@class="msg-overlay-bubble-header__controls"]/*[name()="svg"]').click()
+            close=self.driver.find_element_by_class_name("msg-overlay-bubble-header__controls")
+            closed1=close.find_element_by_css_selector(".msg-overlay-bubble-header__control.artdeco-button.artdeco-button--circle.artdeco-button--muted.artdeco-button--1.artdeco-button--tertiary.ember-view")
+            print(closed1.text)
+            closed1.click()
+            time.sleep(10)
+
+
+
+
 
 
     def send_message(self,profile_names):
@@ -57,15 +92,29 @@ class LinkedIn:
             fullLink='http://www.linkedin.com'+visited_ID
             print(fullLink)
             self.driver.get(fullLink)
+            time.sleep(10)
+            button=self.driver.find_element(by=By.CLASS_NAME,value='pvs-profile-actions ')
+            self.driver.implicitly_wait(10)
+            ActionChains(self.driver).move_to_element(button).click(button).perform()
             time.sleep(15)
-            self.driver.find_element_by_class_name("entry-point").click()
-            custom_msg="""Hi,
-                          If you are reading this that means my bot worked.
-                          Anyways, I am a Northeastern university Student who applied for the data science intern
-                          role at your comapny but no reply was there.
-                          Recently I saw the same opening and was wondering if I can interview for the role.
-                          If you are curious, the link for this bot is: https://github.com/Negi97Mohit/LinkedIn.git
-                          and my email is: negi.m@northeastern.edu """
+            try:
+                self.driver.find_element_by_class_name("artdeco-text-input--input").send_keys("Hello")
+            except:
+                print("No Message")
+            custom_msg="""Hello,
+
+I am sending this message from an automated bot written in Python.
+
+I am currently a Northeastern University student,
+
+I had applied for the Data Analyst intern role from my university portal back in May, Recently I saw the same opening and was wondering if I can interview for the position.
+
+The link for this bot is "https://github.com/Negi97Mohit/LinkedIn.git".
+
+If you wish to connect, my email id is : negi.m@northeastern.edu 
+
+With regards,
+Mohit Negi"""
 
 
 
